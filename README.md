@@ -1,2 +1,0 @@
-# ProyectUni
-proyecto ligero
