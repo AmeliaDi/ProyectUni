@@ -1,0 +1,3 @@
+/home/user/ProyectUni/build/CMakeFiles/app_drogon.dir
+/home/user/ProyectUni/build/CMakeFiles/edit_cache.dir
+/home/user/ProyectUni/build/CMakeFiles/rebuild_cache.dir
