@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/StylophoneEmulator.dir/link.d CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o -o StylophoneEmulator  libimgui_lib.a /usr/lib/libSDL2-2.0.so.0.3200.68 -lm -ldl /usr/lib/libGLX.so /usr/lib/libOpenGL.so
