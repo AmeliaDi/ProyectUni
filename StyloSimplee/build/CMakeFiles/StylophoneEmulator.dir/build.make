@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/draenora/Desktop/proyectouni/StylophoneEmulator
+CMAKE_SOURCE_DIR = /home/draenora/Desktop/proyectouni/StyloSimplee
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/draenora/Desktop/proyectouni/StylophoneEmulator/build
+CMAKE_BINARY_DIR = /home/draenora/Desktop/proyectouni/StyloSimplee/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/StylophoneEmulator.dir/depend.make
@@ -73,46 +73,46 @@ CMakeFiles/StylophoneEmulator.dir/codegen:
 .PHONY : CMakeFiles/StylophoneEmulator.dir/codegen
 
 CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o: CMakeFiles/StylophoneEmulator.dir/flags.make
-CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o: /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/main.cpp
+CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o: /home/draenora/Desktop/proyectouni/StyloSimplee/src/main.cpp
 CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o: CMakeFiles/StylophoneEmulator.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o -MF CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o.d -o CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o -c /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/draenora/Desktop/proyectouni/StyloSimplee/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o -MF CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o.d -o CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o -c /home/draenora/Desktop/proyectouni/StyloSimplee/src/main.cpp
 
 CMakeFiles/StylophoneEmulator.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/StylophoneEmulator.dir/src/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/main.cpp > CMakeFiles/StylophoneEmulator.dir/src/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/draenora/Desktop/proyectouni/StyloSimplee/src/main.cpp > CMakeFiles/StylophoneEmulator.dir/src/main.cpp.i
 
 CMakeFiles/StylophoneEmulator.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/StylophoneEmulator.dir/src/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/main.cpp -o CMakeFiles/StylophoneEmulator.dir/src/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/draenora/Desktop/proyectouni/StyloSimplee/src/main.cpp -o CMakeFiles/StylophoneEmulator.dir/src/main.cpp.s
 
 CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o: CMakeFiles/StylophoneEmulator.dir/flags.make
-CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o: /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/StylophoneSynth.cpp
+CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o: /home/draenora/Desktop/proyectouni/StyloSimplee/src/StylophoneSynth.cpp
 CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o: CMakeFiles/StylophoneEmulator.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o -MF CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o.d -o CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o -c /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/StylophoneSynth.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/draenora/Desktop/proyectouni/StyloSimplee/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o -MF CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o.d -o CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o -c /home/draenora/Desktop/proyectouni/StyloSimplee/src/StylophoneSynth.cpp
 
 CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/StylophoneSynth.cpp > CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/draenora/Desktop/proyectouni/StyloSimplee/src/StylophoneSynth.cpp > CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.i
 
 CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/StylophoneSynth.cpp -o CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/draenora/Desktop/proyectouni/StyloSimplee/src/StylophoneSynth.cpp -o CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.s
 
 CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o: CMakeFiles/StylophoneEmulator.dir/flags.make
-CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o: /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/Sequencer.cpp
+CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o: /home/draenora/Desktop/proyectouni/StyloSimplee/src/Sequencer.cpp
 CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o: CMakeFiles/StylophoneEmulator.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o -MF CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o.d -o CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o -c /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/Sequencer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/draenora/Desktop/proyectouni/StyloSimplee/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o -MF CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o.d -o CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o -c /home/draenora/Desktop/proyectouni/StyloSimplee/src/Sequencer.cpp
 
 CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/Sequencer.cpp > CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/draenora/Desktop/proyectouni/StyloSimplee/src/Sequencer.cpp > CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.i
 
 CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/Sequencer.cpp -o CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/draenora/Desktop/proyectouni/StyloSimplee/src/Sequencer.cpp -o CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.s
 
 # Object files for target StylophoneEmulator
 StylophoneEmulator_OBJECTS = \
@@ -134,7 +134,7 @@ StylophoneEmulator: /usr/lib/libm.so
 StylophoneEmulator: /usr/lib/libGLX.so
 StylophoneEmulator: /usr/lib/libOpenGL.so
 StylophoneEmulator: CMakeFiles/StylophoneEmulator.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable StylophoneEmulator"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/draenora/Desktop/proyectouni/StyloSimplee/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable StylophoneEmulator"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/StylophoneEmulator.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -146,6 +146,6 @@ CMakeFiles/StylophoneEmulator.dir/clean:
 .PHONY : CMakeFiles/StylophoneEmulator.dir/clean
 
 CMakeFiles/StylophoneEmulator.dir/depend:
-	cd /home/draenora/Desktop/proyectouni/StylophoneEmulator/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/draenora/Desktop/proyectouni/StylophoneEmulator /home/draenora/Desktop/proyectouni/StylophoneEmulator /home/draenora/Desktop/proyectouni/StylophoneEmulator/build /home/draenora/Desktop/proyectouni/StylophoneEmulator/build /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/CMakeFiles/StylophoneEmulator.dir/DependInfo.cmake "--color=$(COLOR)" StylophoneEmulator
+	cd /home/draenora/Desktop/proyectouni/StyloSimplee/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/draenora/Desktop/proyectouni/StyloSimplee /home/draenora/Desktop/proyectouni/StyloSimplee /home/draenora/Desktop/proyectouni/StyloSimplee/build /home/draenora/Desktop/proyectouni/StyloSimplee/build /home/draenora/Desktop/proyectouni/StyloSimplee/build/CMakeFiles/StylophoneEmulator.dir/DependInfo.cmake "--color=$(COLOR)" StylophoneEmulator
 .PHONY : CMakeFiles/StylophoneEmulator.dir/depend
 

@@ -100,6 +100,10 @@ int main(int argc, char* argv[]) {
     
     // cargar fuente retro chida q baje d interenet. 
     std::string fontPath = "assets/PressStart2P.ttf";
+    if (!std::filesystem::exists(fontPath)) {
+        fontPath = "../assets/PressStart2P.ttf"; // Por si lo corren desde la carpeta build/
+    }
+
     if (std::filesystem::exists(fontPath)) {
         io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 18.0f);
     } else {

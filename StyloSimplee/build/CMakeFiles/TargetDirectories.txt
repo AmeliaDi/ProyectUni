@@ -1,4 +1,4 @@
-/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/CMakeFiles/imgui_lib.dir
-/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/CMakeFiles/StylophoneEmulator.dir
-/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/CMakeFiles/edit_cache.dir
-/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/CMakeFiles/rebuild_cache.dir
+/home/draenora/Desktop/proyectouni/StyloSimplee/build/CMakeFiles/imgui_lib.dir
+/home/draenora/Desktop/proyectouni/StyloSimplee/build/CMakeFiles/StylophoneEmulator.dir
+/home/draenora/Desktop/proyectouni/StyloSimplee/build/CMakeFiles/edit_cache.dir
+/home/draenora/Desktop/proyectouni/StyloSimplee/build/CMakeFiles/rebuild_cache.dir

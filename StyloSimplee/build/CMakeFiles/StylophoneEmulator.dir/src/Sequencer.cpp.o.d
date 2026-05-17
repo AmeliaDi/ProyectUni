@@ -1,7 +1,7 @@
 CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o: \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/Sequencer.cpp \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/src/Sequencer.cpp \
  /usr/include/stdc-predef.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/Sequencer.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/src/Sequencer.h \
  /usr/include/c++/16.1.1/string \
  /usr/include/c++/16.1.1/bits/requires_hosted.h \
  /usr/include/c++/16.1.1/x86_64-pc-linux-gnu/bits/c++config.h \

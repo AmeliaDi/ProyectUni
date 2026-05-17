@@ -1,8 +1,8 @@
 CMakeFiles/imgui_lib.dir/_deps/imgui-src/imgui_demo.cpp.o: \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/imgui_demo.cpp \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/imgui_demo.cpp \
  /usr/include/stdc-predef.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/imgui.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/imconfig.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/imgui.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/imconfig.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/include/float.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/include/stdarg.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/include/stddef.h \

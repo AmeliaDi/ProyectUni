@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src -I/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/backends -isystem /usr/include/SDL2
+CXX_INCLUDES = -I/home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src -I/home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/backends -isystem /usr/include/SDL2
 
 CXX_FLAGS = -std=gnu++20
 

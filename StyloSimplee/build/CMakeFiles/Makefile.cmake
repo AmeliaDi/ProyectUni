@@ -7,7 +7,7 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 # The top level Makefile was generated from the following files:
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
-  "/home/draenora/Desktop/proyectouni/StylophoneEmulator/CMakeLists.txt"
+  "/home/draenora/Desktop/proyectouni/StyloSimplee/CMakeLists.txt"
   "CMakeFiles/4.3.2/CMakeCCompiler.cmake"
   "CMakeFiles/4.3.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/4.3.2/CMakeSystem.cmake"

@@ -8,9 +8,9 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/draenora/Desktop/proyectouni/StylophoneEmulator/src/Sequencer.cpp" "CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o" "gcc" "CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o.d"
-  "/home/draenora/Desktop/proyectouni/StylophoneEmulator/src/StylophoneSynth.cpp" "CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o" "gcc" "CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o.d"
-  "/home/draenora/Desktop/proyectouni/StylophoneEmulator/src/main.cpp" "CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o" "gcc" "CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o.d"
+  "/home/draenora/Desktop/proyectouni/StyloSimplee/src/Sequencer.cpp" "CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o" "gcc" "CMakeFiles/StylophoneEmulator.dir/src/Sequencer.cpp.o.d"
+  "/home/draenora/Desktop/proyectouni/StyloSimplee/src/StylophoneSynth.cpp" "CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o" "gcc" "CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o.d"
+  "/home/draenora/Desktop/proyectouni/StyloSimplee/src/main.cpp" "CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o" "gcc" "CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o.d"
   "" "StylophoneEmulator" "gcc" "CMakeFiles/StylophoneEmulator.dir/link.d"
   )
 

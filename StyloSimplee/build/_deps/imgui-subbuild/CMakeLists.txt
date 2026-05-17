@@ -28,8 +28,8 @@ set_property(GLOBAL PROPERTY _CMAKE_FindGit_GIT_EXECUTABLE_VERSION
 include(ExternalProject)
 ExternalProject_Add(imgui-populate
                      "UPDATE_DISCONNECTED" "False" "GIT_REPOSITORY" "https://github.com/ocornut/imgui.git" "EXTERNALPROJECT_INTERNAL_ARGUMENT_SEPARATOR" "GIT_TAG" "v1.90.5"
-                    SOURCE_DIR          "/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src"
-                    BINARY_DIR          "/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-build"
+                    SOURCE_DIR          "/home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src"
+                    BINARY_DIR          "/home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

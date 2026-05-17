@@ -1,7 +1,7 @@
 {
 	"InstallScripts" : 
 	[
-		"/home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-subbuild/cmake_install.cmake"
+		"/home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-subbuild/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

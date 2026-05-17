@@ -1,7 +1,7 @@
 CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o: \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/StylophoneSynth.cpp \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/src/StylophoneSynth.cpp \
  /usr/include/stdc-predef.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/third_party/miniaudio.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/third_party/miniaudio.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/include/stddef.h \
  /usr/include/pthread.h /usr/include/features.h \
  /usr/include/features-time64.h /usr/include/bits/wordsize.h \
@@ -132,7 +132,7 @@ CMakeFiles/StylophoneEmulator.dir/src/StylophoneSynth.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/include/stdint.h \
  /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
  /usr/include/bits/stdint-least.h /usr/include/bits/eventfd.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/StylophoneSynth.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/src/StylophoneSynth.h \
  /usr/include/c++/16.1.1/atomic \
  /usr/include/c++/16.1.1/bits/atomic_base.h \
  /usr/include/c++/16.1.1/bits/atomic_lockfree_defines.h \

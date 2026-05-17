@@ -1,8 +1,8 @@
 CMakeFiles/imgui_lib.dir/_deps/imgui-src/backends/imgui_impl_sdl2.cpp.o: \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/backends/imgui_impl_sdl2.cpp \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/backends/imgui_impl_sdl2.cpp \
  /usr/include/stdc-predef.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/imgui.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/imconfig.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/imgui.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/imconfig.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/include/float.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/include/stdarg.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/include/stddef.h \
@@ -13,7 +13,7 @@ CMakeFiles/imgui_lib.dir/_deps/imgui-src/backends/imgui_impl_sdl2.cpp.o: \
  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h \
  /usr/include/bits/types/locale_t.h /usr/include/bits/types/__locale_t.h \
  /usr/include/strings.h /usr/include/assert.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/backends/imgui_impl_sdl2.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/backends/imgui_impl_sdl2.h \
  /usr/include/SDL2/SDL.h /usr/include/SDL2/SDL_main.h \
  /usr/include/SDL2/SDL_stdinc.h /usr/include/SDL2/SDL_config.h \
  /usr/include/SDL2/SDL_platform.h /usr/include/SDL2/begin_code.h \

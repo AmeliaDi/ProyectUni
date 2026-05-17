@@ -1,5 +1,5 @@
 CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o: \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/main.cpp \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/src/main.cpp \
  /usr/include/stdc-predef.h /usr/include/SDL2/SDL.h \
  /usr/include/SDL2/SDL_main.h /usr/include/SDL2/SDL_stdinc.h \
  /usr/include/SDL2/SDL_config.h /usr/include/SDL2/SDL_platform.h \
@@ -236,12 +236,12 @@ CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o: \
  /usr/include/SDL2/SDL_version.h /usr/include/SDL2/SDL_locale.h \
  /usr/include/SDL2/SDL_misc.h /usr/include/SDL2/SDL_opengl.h \
  /usr/include/SDL2/SDL_opengl_glext.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/imgui.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/imconfig.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/imgui.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/imconfig.h \
  /usr/include/assert.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/backends/imgui_impl_sdl2.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/build/_deps/imgui-src/backends/imgui_impl_opengl3.h \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/StylophoneSynth.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/backends/imgui_impl_sdl2.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/build/_deps/imgui-src/backends/imgui_impl_opengl3.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/src/StylophoneSynth.h \
  /usr/include/c++/16.1.1/atomic \
  /usr/include/c++/16.1.1/bits/atomic_base.h \
  /usr/include/c++/16.1.1/bits/atomic_lockfree_defines.h \
@@ -261,7 +261,7 @@ CMakeFiles/StylophoneEmulator.dir/src/main.cpp.o: \
  /usr/include/bits/types/struct_itimerspec.h /usr/include/bits/setjmp.h \
  /usr/include/bits/types/struct___jmp_buf_tag.h \
  /usr/include/c++/16.1.1/cstdint \
- /home/draenora/Desktop/proyectouni/StylophoneEmulator/src/Sequencer.h \
+ /home/draenora/Desktop/proyectouni/StyloSimplee/src/Sequencer.h \
  /usr/include/c++/16.1.1/string /usr/include/c++/16.1.1/bits/stringfwd.h \
  /usr/include/c++/16.1.1/bits/memoryfwd.h \
  /usr/include/c++/16.1.1/bits/char_traits.h \
