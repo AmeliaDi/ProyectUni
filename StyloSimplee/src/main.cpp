@@ -16,10 +16,12 @@
 // Constantes locas de diseño pa que se vea bn retro el proyecto
 // =========================================================================
 
-// las notas q suenan, trate d meter mas d una octava pero ya no cabian 
+// las notas q suenan, aumentadas a 44 teclas (C2 a G5)
 const std::vector<std::string> STYLOPHONE_KEYS = {
-    "A3", "A#3", "B3", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", 
-    "A4", "A#4", "B4", "C5" 
+    "C2", "C#2", "D2", "D#2", "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2",
+    "C3", "C#3", "D3", "D#3", "E3", "F3", "F#3", "G3", "G#3", "A3", "A#3", "B3",
+    "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4",
+    "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5", "G5"
 };
 
 // colores sacados de paletas viejas
@@ -179,6 +181,8 @@ int main(int argc, char* argv[]) {
         ImGui::Spacing();
         
         ImGui::Text(">> CONTACTOS DE TECLADO (Usar Stylus/Raton)");
+        ImGui::TextDisabled("Rango extendido: Puedes escribir notas desde C2 hasta G5 (44 teclas activas).");
+        ImGui::Spacing();
         bool anyKeyHeld = false;
 
         // Pinta el teclado chido con un for
@@ -197,9 +201,9 @@ int main(int argc, char* argv[]) {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1,1,1,1));
             }
 
-            if (i > 0 && i % 8 != 0) ImGui::SameLine(); // baja la linea al 8vo boton
+            if (i > 0 && i % 11 != 0) ImGui::SameLine(); // baja la linea al 11vo boton
             
-            ImGui::Button(note.c_str(), ImVec2(45, 80)); 
+            ImGui::Button(note.c_str(), ImVec2(55, 55)); 
             
             ImGui::PopStyleColor(3); // NO OLVIDAR ESTO SI NO SE RAYA LA INTERFAZ
 
@@ -242,7 +246,7 @@ int main(int argc, char* argv[]) {
         
         // CAJOTA de texto pa meter la rola
         // Nota d clase: El flag _CharsUppercase nos salva d programar un toupper a mano wjujuuu
-        ImGui::InputTextMultiline("##sequence", sequenceBuffer, IM_ARRAYSIZE(sequenceBuffer), ImVec2(0, ImGui::GetTextLineHeight() * 4), ImGuiInputTextFlags_CharsUppercase);
+        ImGui::InputTextMultiline("##sequence", sequenceBuffer, IM_ARRAYSIZE(sequenceBuffer), ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetTextLineHeight() * 4), ImGuiInputTextFlags_CharsUppercase);
 
         ImGui::Spacing();
 
