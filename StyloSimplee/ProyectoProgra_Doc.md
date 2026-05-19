@@ -1,123 +1,156 @@
-# Documentación Técnica: Emulador de Stylophone (StyloSimle)
+# Documentación Técnica Avanzada: Proyecto Proga StyloSimple V1.3
 
-## Descripción General
-El proyecto "StyloSimle" es un emulador de sintetizador por software basado en el clásico instrumento electrónico Stylophone. Fue desarrollado íntegramente en C++20 con un enfoque arquitectónico orientado al rendimiento y la latencia ultra baja, separando estrictamente la interfaz gráfica de usuario (GUI) del procesamiento de señales digitales (DSP).
-
----
-
-## Stack Tecnológico
-- **Lenguaje:** C++20
-- **Sistema de Compilación:** CMake
-- **Capa Gráfica y Contexto:** SDL2 + OpenGL3
-- **Interfaz Gráfica de Usuario (GUI):** Dear ImGui
-- **Motor de Audio:** Miniaudio (Implementación Single-header, procesamiento asíncrono)
+> **Versión:** 1.3 - *Compiladote*  
+> **Autores / Colaboradores (Temas):** Fer, enora  
+> **Tecnologías Base:** C++20, SDL2, OpenGL3, Dear ImGui, Miniaudio.
 
 ---
 
-## Buenas Prácticas Aplicadas en C++
-Este proyecto se rige por convenciones modernas de programación orientada a objetos en C++:
-1. **Espacio de nombres estándar (`std::`)**: En C++, `std` (Standard) es la biblioteca principal que contiene funcionalidades fundamentales como arreglos dinámicos (`std::vector`) o cadenas de texto (`std::string`). Se utiliza `std::` explícitamente en lugar del atajo `using namespace std;` para evitar "colisiones de nombres", lo cual es una regla de oro en el desarrollo profesional para evitar que variables con el mismo nombre interfieran entre sí.
-2. **Uso de `constexpr`**: Variables que nunca van a cambiar y cuyos valores se conocen antes de compilar el código (como la frecuencia de muestreo de audio `DEFAULT_SAMPLE_RATE`) utilizan la palabra reservada `constexpr`. Esto optimiza enormemente el programa porque el compilador hace las sumas o cálculos una sola vez al generar el ejecutable, en lugar de gastar memoria de procesamiento calculándolo cada vez que el programa corre.
-3. **Punteros Inteligentes y RAII**: Los recursos del sistema operativo (como pedir acceso a la tarjeta de sonido) se solicitan en la inicialización (el "constructor" de las clases) y se liberan obligatoria y automáticamente al cerrar el programa (en el "destructor" `close()`), previniendo las temidas fugas de memoria (Memory Leaks).
-4. **Hilos Seguros (Thread-Safety) sin Mutex**: El motor de audio funciona en "segundo plano" a velocidades extremas. Si lo bloqueáramos usando semáforos comunes (`mutex`), el sonido sufriría pausas o ruidos molestos. Por ello, la comunicación entre la interfaz de usuario y el audio se realiza declarando variables como `std::atomic`. Las variables atómicas le aseguran al procesador que la escritura y lectura se harán a nivel de hardware, sin riesgo de que los hilos choquen entre sí.
+## 1. Visión General del Proyecto
+
+**StyloSimple** no es solo un emulador de un juguete retro de los años 60; es un motor de **Síntesis Digital de Señales (DSP)** y una **Estación de Trabajo de Audio Digital (DAW)** multipista en miniatura, construido completamente desde cero en C++20. 
+
+El objetivo principal de este proyecto es demostrar un control riguroso sobre la memoria, la concurrencia multihilo (multithreading) y las matemáticas aplicadas al sonido, manteniendo una latencia de hardware casi nula. Todo esto envuelto en una interfaz gráfica altamente responsiva, estilizada con estéticas retro dinámicas.
 
 ---
 
-## Arquitectura del Sistema: ¿Qué hace cada archivo?
+## 2. Arquitectura de Software Rigurosa
 
-El proyecto se divide en tres piezas clave:
+Para que un emulador de audio se sienta "real", la latencia (el retraso entre hacer clic y escuchar el sonido) debe ser inferior a 15 milisegundos. Para lograr esto, StyloSimple divide su arquitectura en dos mundos paralelos:
 
-### 1. Motor de Audio (`StylophoneSynth.h` y `.cpp`)
-Es la fábrica de sonido. Es responsable de calcular, número por número, la onda sonora en tiempo real. Ahora cuenta con un **Motor Polifónico Multipista**, capaz de reproducir hasta 16 voces o "pistas" a la vez. No utiliza archivos MP3 ni WAV.
-- **Variables Clave:** 
-  - `struct SynthVoice`: Una estructura compacta que funciona como un "mini-sintetizador" individual. Guarda la frecuencia de una pista (`m_targetFrequency`), su fase y envolvente (volumen).
-  - `std::array<SynthVoice, 16> m_voices`: El arreglo que almacena el estado de las 16 pistas. Permite evitar el uso de alocación de memoria dinámica (como `std::vector` o `new`), lo cual es una regla sagrada para hilos de audio ultra-rápidos.
-- **Métodos Principales:**
-  - `processAudio(float* output, int frameCount)`: Es el corazón de todo el aplicativo. Se llama cientos de veces por segundo en segundo plano.
+1. **El Hilo Principal (GUI Thread):** Corre a unos 60-144 FPS. Se encarga exclusivamente de dibujar la interfaz, leer los clics del ratón (SDL2) y actualizar el reloj del secuenciador.
+2. **El Hilo de Audio (DSP Thread):** Corre a velocidades extremas. Es invocado por la tarjeta de sonido (a través de `miniaudio`) y procesa 44,100 muestras matemáticas por segundo.
+
+### 2.1 Concurrencia Lock-Free (El problema de los Mutex)
+Si utilizamos primitivas de sincronización clásicas como los `std::mutex` para comunicar el Hilo Principal con el Hilo de Audio, estaríamos forzando al motor de sonido a "esperar" a la interfaz gráfica. Esa espera produce micro-cortes auditivos horribles conocidos como *clicks* o *pops*. 
+
+**La Solución Experta:** 
+En lugar de bloquear hilos, utilizamos variables **atómicas** (`std::atomic<float>` y `std::atomic<bool>`) con un modelo de memoria relajado (`std::memory_order_relaxed`). Esto garantiza a nivel de hardware que, cuando la UI escribe una nueva frecuencia (ej. el usuario presiona una tecla), el hilo de audio siempre leerá un valor coherente sin necesidad de bloquearse. Es un flujo de información unidireccional ultrarrápido y seguro.
+
+### 2.2 Gestión de Memoria (RAII)
+No hay un solo `delete` suelto en la lógica principal ni se emplean punteros crudos (`raw pointers`) más allá del encapsulamiento estricto de las librerías en C. Los recursos se adquieren en los constructores y se liberan en los destructores (RAII). Las pistas de audio polifónicas se almacenan en un `std::array<SynthVoice, 16>` estático (memoria en el Stack), prohibiendo estrictamente el uso de memoria dinámica (`std::vector` o `new`) dentro del callback de audio para evitar pausas por el *Garbage Collection* o *Page Faults* del sistema operativo.
+
+---
+
+## 3. Despiece de Módulos (Deep Dive)
+
+### 3.1 Motor DSP y Síntesis de Audio (`StylophoneSynth.h / .cpp`)
+Este módulo es un sintetizador aditivo/sustractivo puro. No utiliza archivos MP3 ni WAV. Dibuja formas geométricas en el aire utilizando matemáticas.
+
+- **Generación de Onda:** 
+  Un Stylophone original suena "metálico" y "zumbante". Matemáticamente, esto se logra mezclando una **Onda Cuadrada** (armónicos impares) y una **Onda de Sierra** (todos los armónicos). En `processAudio()`, un acumulador de fase (que va de 0.0 a 1.0) dibuja ambas ondas, y el motor mezcla un **70% de Cuadrada con un 30% de Sierra**, replicando el voltaje de los circuitos analógicos originales.
   
-  **¿Cómo se mezcla el sonido en un Multipista?**
-  Para que escuches múltiples tonos a la vez, el método `processAudio` utiliza un "Mezclador por Software" (Soft Mixer) en estos sencillos pasos:
-  1. **Oscilación de Pistas:** El programa itera sobre el vector de las 16 voces, calculando de forma independiente el avance (`phase`) y la forma de onda (70% cuadrada y 30% sierra) para cada una de ellas, aplicando sus propios filtros y volúmenes.
-  2. **Sumatoria Master:** Las ondas procesadas de cada pista se suman aritméticamente a una variable central llamada `mixedSample`.
-  3. **Limitador de Picos (Soft Clipping):** Si sumáramos 10 sonidos muy fuertes, la señal superaría el límite digital de `1.0` y `-1.0`, provocando un ruido horrible conocido como "clipping" o saturación digital. Para evitarlo de manera profesional, pasamos el resultado final por una función trigonométrica `std::tanh(mixedSample)`. La tangente hiperbólica comprime de manera natural y suave los picos extremos del audio, manteniendo un volumen equilibrado sin importar cuántas notas estén sonando.
+- **Filtro de Paso Bajo (Low-Pass Filter):** 
+  Las ondas puras generadas digitalmente tienen picos infinitos (Aliasing) que lastiman el oído. Se implementó una ecuación de diferencias de un filtro de 1-polo (RC Filter discreto) configurado a 2500Hz. Esto "suaviza" las esquinas de la onda, entregando un sonido cálido.
 
-### 2. Motor de Secuenciación (`Sequencer.h` y `.cpp`)
-Es el encargado de leer múltiples textos, entenderlos y automatizar la música en base al tiempo.
-- **Variables Clave:**
-  - `std::vector<std::vector<std::string>> m_sequences`: Un vector dinámico "bidimensional" (lista de listas). Cada lista representa una pista (TRK 1, TRK 2, etc.), y almacena el orden de sus notas a corto plazo.
-  - `m_timer` y `m_stepDuration`: Acumuladores de tiempo. Leen los "BPM" (Beats/Golpes por minuto) definidos por el usuario en el control deslizante y calculan matemáticamente cuántos milisegundos de espera deben transcurrir entre un compás y el siguiente.
-- **Métodos Principales:**
-  - `play(const std::vector<std::string>& sequenceTexts)`: Utiliza `std::istringstream` (un flujo o túnel de lectura de texto nativo de C++). Su trabajo es tragar el arreglo de los textos sucios escritos por el usuario (por ejemplo: "A4     C5\n\n 00"), ignorar todos los espacios, y guardarlos de forma limpia y paralela en cada uno de los vectores internos.
-  - `getFrequencyFromNote()`: Es un traductor matemático. Convierte una cadena de texto (como "A4") a su frecuencia sonora pura (440.0f) iterando sobre un catálogo base y aplicando la fórmula de potencias de la escala musical occidental. Esta función también reconoce el token mágico `"00"`, retornando un perfecto `0.0f` que los otros métodos interpretan y ejecutan como un **Silencio** (Rest) musical.
+- **Soft Clipping (Limitador Analógico):**
+  StyloSimple es multipista (polifónico a 16 voces). Si el usuario reproduce 10 notas a la vez, la suma matemática de las ondas superará el límite digital de amplitud (`1.0`), creando una distorsión catastrófica (Digital Hard Clipping). Para solucionar esto como verdaderos expertos en audio, toda la mezcla maestra pasa por la función `std::tanh(mixedSample)`. La tangente hiperbólica es una curva en "S" que comprime suavemente los picos altos (Soft Clipping), manteniendo el volumen robusto y cálido sin importar cuántas voces estén sonando a la vez.
 
-### 3. Capa de Presentación (`main.cpp`)
-El archivo de control central que coordina el dibujo de los gráficos y une la interfaz con la lógica de los motores de audio y secuencias.
-- **Lógica de Renderizado:** El bloque `while (!done)` conforma el bucle de renderizado infinito del juego/app. Se encarga de limpiar el lienzo y re-dibujar los botones interactivos a un mínimo de 60 fotogramas por segundo, ajustándose milimétricamente al ancho de la pantalla sin espacios inútiles. 
-- **Conexión de Componentes:** En este archivo nacen las variables `StylophoneSynth synth;` y `Sequencer sequencer;`. Para conectar sus cerebros sin mezclarlos, pasamos "funciones anónimas (lambdas)" que le instruyen al secuenciador: "Cuando el tiempo dictamine que debes tocar algo, llama internamente a la función `synth.noteOn(frecuencia)`".
+- **Envolventes (ADSR Simplificado):**
+  Para evitar ruidos estáticos al presionar o soltar una tecla, el volumen no salta de 0 a 1. Se implementó una rampa lineal de Ataque (`Attack`, 10ms) y Relajación (`Release`, 50ms) multiplicada a la onda de salida final.
 
----
+### 3.2 Cerebro de Secuenciación (`Sequencer.h / .cpp`)
+Es un motor DAW (*Digital Audio Workstation*) integrado capaz de leer texto y convertirlo en eventos de tiempo exacto.
 
-## Explicación Funcional de la Interfaz Interactiva
+- **Manejo del Tiempo (`deltaTime`):** 
+  En lugar de usar retrasos bloqueantes (`sleep()`), el método `update(float deltaTime)` lee cuántos milisegundos reales tardó el procesador en dibujar el último frame. Acumula ese tiempo y, basándose en la ecuación `60 / BPM`, sabe el momento milimétricamente exacto para avanzar el "cabezal de reproducción" al siguiente compás (step).
+  
+- **Traductor Matemático Temperado (`getFrequencyFromNote`):**
+  Lee las cadenas de texto del usuario (como `"C#5"`) y extrae la nota y la octava. Basado en la afinación temperada moderna (donde A4 = 440 Hz), busca el semitono correspondiente en un diccionario estático y calcula la frecuencia con total precisión matemática sin uso de condicionales masivos (if/else). También reconoce el token mágico `"00"` y lo interpreta explícitamente como un silencio musical, retornando `0.0f` para que la voz asíncrona se apague.
 
-- **Selector de Temas**: Incorporamos un menú desplegable (`ImGui::Combo`) en la esquina superior derecha del encabezado (junto al nuevo título `Proyecto Proga StyloSimple V1.3`). Este incluye esquemas de colores retro programados con paletas `ImVec4`, permitiéndote cambiar al instante entre: *Ámbar Retro (Fer)*, *Matrix Verde (enora)*, *Blanco y Negro (enora)*, y *Monokai Hacker (Fer)*.
-- **Botón `[+] AÑADIR PISTA`**: Escala la lógica del secuenciador creando en tiempo real nuevas cajas de texto (`InputTextMultiline`) auto-ajustables en un contenedor provisto de barras de desplazamiento vertical (Scrollbar) para no romper el aspecto de la ventana principal.
-- **Botón [>] PLAY:** Invoca a `sequencer.play()`. Analiza todos los textos de pistas disponibles en pantalla, vacía la memoria anterior y arranca el reloj interno global.
-- **Grabación Dirigida (Radio Buttons):** Añadimos pequeños selectores (círculos) junto a cada caja de texto. Si seleccionas la Pista 2 y presionas grabar, todo lo que toques en el teclado virtual se registrará directa y exclusivamente en esa pista. ¡Súper útil para hacer armonías complejas sin borrar tu melodía principal!
-- **Feedback Visual Dinámico:** Al reproducir la música, los títulos de las pistas cambian en tiempo real (ej. pasando de `TRK 1>` a `TRK 1 [C#5]>`) y brillan usando el color de acento principal. Esto te permite "ver" la música y saber exactamente qué nota está escupiendo cada pista en cada milisegundo.
-- **Botón [O] GRABAR:** Modifica el estado del secuenciador a modo `Recording`. Mientras este estado permanezca activo, cualquier clic que el ratón efectúe sobre las teclas metálicas de la pantalla ejecutará en cadena la función `sequencer.recordNote(track_activo)`.
-- **Botón [-] BORRAR MEMORIA:** Itera a través del `std::vector` de las cajas de texto y ejecuta un borrado físico veloz escribiendo `sequenceBuffers[i][0] = '\0'`. Al introducir este Carácter Nulo de terminación en C++, el sistema trunca la cadena instantáneamente. Es la manera más rústica, eficaz y limpia de vaciar la memoria.
+### 3.3 Capa de Presentación (`main.cpp`)
+El orquestador visual construido sobre el framework gráfico de modo inmediato, **Dear ImGui**.
+
+- **Sincronización de Memoria (ImGui vs C++):** ImGui está escrito primariamente en C, por lo que demanda punteros crudos a arreglos de caracteres (`char[]`) para las cajas de texto. El `main.cpp` puentea de forma brillante la seguridad de `std::string` del secuenciador hacia un buffer local `std::array<char, 2048>`, copiando su estado ida y vuelta en cada frame sin sobrecargar la memoria caché.
+- **Temas Dinámicos:** Se extrajeron todas las constantes de color hardcodeadas hacia una estructura global `ThemeColors`. Un menú desplegable modifica en caliente toda la paleta de la aplicación con temas que van desde el crudo *"Matrix Verde"* hasta el popular perfil para programadores *"Monokai Hacker"*.
 
 ---
 
-## Guía de Compilación (Linux)
+## 4. Glosario Analítico de Funciones (API Interna)
 
-### Prerrequisitos
-Deberás contar con herramientas de compilación modernas y las bibliotecas de desarrollo de SDL2. Abre una terminal y ejecuta:
+Para garantizar un entendimiento total y riguroso de la arquitectura, a continuación se desglosa el propósito exacto de cada función y método de nuestras clases principales. Entender para qué sirve cada "void" o retorno es vital para dominar la ingeniería detrás de StyloSimple:
+
+### Clase `StylophoneSynth` (Capa DSP)
+- **`StylophoneSynth()` (Constructor):** Inicializa el sintetizador, asignando los punteros del hardware a nulo y estableciendo la frecuencia de muestreo base en 44100Hz.
+- **`~StylophoneSynth()` (Destructor):** Invoca a `close()`. Garantiza mediante RAII que no queden procesos "zombies" ni memoria sucia al cerrar la ventana.
+- **`bool init()`:** Crea y configura el hilo asíncrono de `miniaudio` (definiendo modo Mono y formato Float32), e inyecta la función puente `data_callback`. Retorna un booleano `true` si la tarjeta de sonido del usuario respondió correctamente.
+- **`void close()`:** Destruye y desvincula de forma explícita y segura el dispositivo lógico de hardware.
+- **`void noteOn(int track, float frequency)`:** Invocado por el Secuenciador o la UI táctil. Recibe un índice de pista (`track`) y una frecuencia tonal en Hercios. Escribe de manera atómica (`memory_order_relaxed`) estos valores en la estructura individual `SynthVoice` y "abre su compuerta" interna (`Gate = true`).
+- **`void noteOff(int track)`:** Apaga atómicamente la compuerta de una pista específica (`Gate = false`), lo que interrumpe la oscilación matemática e inicia la fase de relajación (*Release*) de su envolvente de volumen.
+- **`void processAudio(float* output, int frameCount)`:** El núcleo matemático absoluto. Es ejecutado exclusivamente por miniaudio en un hilo secundario de extrema prioridad. Itera `frameCount` veces, calculando microsegundo a microsegundo la suma iterativa de osciladores de sierra/cuadrada, envolventes y filtros paso-bajo para las 16 pistas. Finalmente aplica *Soft Clipping* y deposita la matriz sonora resultante en el buffer de salida (`output`).
+
+### Clase `Sequencer` (Capa DAW y Rítmica)
+- **`Sequencer()` (Constructor):** Calcula la duración inicial matemática del compás basándose en el estándar pop de 120 BPM e instancia la **Pista 1** por defecto.
+- **`void setNoteCallbacks(...)`:** Recibe dos expresiones *Lambda* (`std::function`) inyectadas directamente desde `main.cpp`. Su función es guardar estos "cables lógicos" para que el secuenciador pueda mandar señales directas de encendido y apagado al sintetizador, logrando un desacoplamiento perfecto entre clases.
+- **`void setBPM(int bpm)`:** Recalcula dinámicamente la constante de tiempo algorítmica `m_stepDuration` (duración exacta de cada compás/paso expresada en segundos reales) dividiendo `60.0f` entre los BPM proporcionados.
+- **`void addTrack()`:** Empuja (`push_back`) nuevos *arrays* vacíos a los vectores multidimensionales, escalando instantáneamente la capacidad polifónica del motor a demanda en tiempo de ejecución.
+- **`void play(...)`:** El Analizador Léxico (*Lexical Parser*). Se deshace de toda la memoria rítmica antigua, itera sobre los crudos strings ingresados por el usuario, los fragmenta utilizando flujos espaciales (`std::istringstream`), y los inyecta en los vectores de reproducción paralela. Por último, inicia el cronómetro maestro cambiando su estado a `Playing`.
+- **`void record()` / `void stop()`:** Mutadores simples de la máquina de estados. Transicionan las banderas atómicas internas a `SequencerMode::Recording` o `SequencerMode::Idle`, reiniciando los acumuladores de tiempo si el flujo lo amerita.
+- **`void recordNote(int track, const std::string& note)`:** Función de inyección en vivo. Al interactuar el usuario con el piano virtual, este método anexa el texto exacto (ej. `"A#4"`) al final de la memoria lineal de la pista especificada.
+- **`void update(float deltaTime)`:** El Acumulador de Latencia. Suma los milisegundos reales que tardó la computadora en procesar cada fotograma. Al rebasar la marca temporal de `m_stepDuration`, llama a `triggerCurrentNotes()` y adelanta algorítmicamente un paso el "cabezal de reproducción" de todos los vectores paralelos.
+- **`void triggerCurrentNotes()`:** El orquestador de eventos asíncronos. Itera a través de absolutamente todas las pistas activas, recupera el *string* actual de la matriz bidimensional, invoca la traducción frecuencial, y dispara los callbacks (hilos) hacia la tarjeta de sonido.
+- **`static float getFrequencyFromNote(...)`:** El decodificador tonal determinista. Empleando la teoría de distancias de semitonos occidentales (A4=440Hz), convierte un crudo String (notación anglosajona) a una frecuencia matemática perfecta (Float). Reconoce implícitamente el uso de tokens como `"00"` devolviendo `0.0f` para representar Silencios Digitales (`Rests`).
+
+---
+
+## 5. Manual de Usuario Interfaz (UI)
+
+La interfaz gráfica no es solo visual, reacciona y retroalimenta al usuario:
+
+1. **Selector de Temas:** Esquina superior derecha. Cambia la estética de toda la aplicación al instante.
+2. **Teclado Extendido:** Rango gigantesco desde C2 hasta G5 (44 teclas). El tamaño (padding/width) fue matemáticamente ajustado para que nombres como `C#4` encajen perfectamente en su bounding box.
+3. **Reproducción Multipista y Feedback Dinámico:** Cuando presionas `[>] PLAY`, cada pista se evalúa paralelamente. El nombre de la pista (ej. `TRK 1>`) cambiará dinámicamente mostrándote en tiempo real la nota que está escupiendo (ej. `TRK 1 [D#4]>`) y **brillará intensamente** con el color de acento de tu tema seleccionado. Esto te permite visualizar auditivamente qué instrumento hace qué melodía.
+4. **Grabación Dirigida (Radio Buttons):** A la izquierda de cada pista verás un pequeño círculo seleccionable. Si eliges, por ejemplo, el TRK 2, al presionar `[O] GRABAR` toda tu interacción con el teclado (ratón o pantalla táctil) se registrará directa y exclusivamente en esa pista. Perfecto para superponer acordes y armonías sin arruinar tu bajo principal.
+5. **Borrado Seguro:** El botón `[-] BORRAR MEMORIA` inserta inmediatamente el carácter nulo (`'\0'`) en la primera posición de memoria de todas las pistas. Es el método algorítmico más rápido (O(1)) para vaciar buffers pesados en C++.
+
+---
+
+## 6. Guía de Compilación (Linux)
+
+### Prerrequisitos de Arquitectura
+StyloSimple requiere compiladores modernos compatibles con el estándar C++20 y los encabezados de desarrollo gráfico para Wayland/X11:
 
 ```bash
-# Para distribuciones basadas en Debian / Ubuntu
+# Para distribuciones Debian / Ubuntu / Pop_OS!
 sudo apt install build-essential cmake libsdl2-dev libgl1-mesa-dev
 
-# Para distribuciones basadas en Arch Linux / CachyOS
+# Para distribuciones Arch Linux / Manjaro / CachyOS
 sudo pacman -S base-devel cmake sdl2 mesa
 ```
 
-### Instrucciones de Compilación
-El proyecto integra el motor CMake, diseñado explícitamente para automatizar las descargas de bibliotecas como Dear ImGui sin intervención humana:
-1. Dirígete a la carpeta raíz del proyecto (donde reside el archivo base `CMakeLists.txt`).
-2. Genera las instrucciones dependientes de tu sistema y compila los binarios:
+### Instrucciones de Compilación (Out-of-Source Build)
+El proyecto utiliza CMake con configuración automática de dependencias externas (trae su propia versión de ImGui embebida):
+
 ```bash
-mkdir build
-cd build
+# 1. Crear directorio aislado para binarios (para no manchar el código fuente)
+mkdir build && cd build
+
+# 2. Generar árbol de dependencias (Makefiles)
 cmake ..
-cmake --build .
-```
-3. Ejecuta el binario empaquetado:
-```bash
+
+# 3. Compilar usando todos los hilos del procesador disponibles
+cmake --build . 
+
+# 4. Ejecutar el demonio musical
 ./StylophoneEmulator
 ```
 
 ---
 
-## Guía de Extensibilidad y Modificación
+## 7. Guía de Extensibilidad (Modding)
 
-### Cómo ampliar el registro musical (Añadir o remover teclas)
-La arquitectura del programa fue construida bajo un paradigma de diseño por adaptación. Para añadir más alcance al teclado (por ejemplo, notas más graves como "C3" o más agudas como "E5"), cualquier programador junior o usuario intermedio puede hacerlo de manera indolora, sin que la aplicación sufra errores lógicos.
+La arquitectura de StyloSimple abraza fuertemente el principio Abierto/Cerrado (Open/Closed Principle de SOLID). Puedes expandir sus límites sin tocar su lógica interna.
 
-1. Abre con cualquier editor de texto el archivo `src/main.cpp`.
-2. Localiza la constante vectorial global `STYLOPHONE_KEYS` posicionada en la zona superior (Línea 15 aprox):
-```cpp
-const std::vector<std::string> STYLOPHONE_KEYS = {
-    "C2", "C#2", "D2", "D#2", "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2",
-    "C3", "C#3", "D3", "D#3", "E3", "F3", "F#3", "G3", "G#3", "A3", "A#3", "B3",
-    "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4",
-    "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5", "G5"
-};
-```
-3. Incorpora tus nuevas notas musicales encuadrándolas entre comillas y separándolas por comas. (Asegúrate de escribirlas en formato estándar: Nombre + [Sostenido opcional] + Número de Octava).
-4. Guarda y vuelve a ejecutar el comando `cmake --build .`
+### ¿Cómo ampliar el registro musical? (Más Teclas)
+El sistema utiliza un diseño adaptativo. No hay números fijos hardcodeados en el renderizado del teclado de la UI. 
 
-**¿Qué ocurre al compilar?**
-El programa se ajustará automáticamente por sí solo sin tocar ni una sola línea de código extra:
-- La interfaz de Dear ImGui calculará los nuevos índices, dibujará la cantidad exacta de botones nuevos y aplicará auto-salto de línea al superar múltiplos de 8.
-- La biblioteca de `Sequencer` leerá automáticamente estas notas en el futuro. Puesto que no dependen de diccionarios estrictos para funcionar sino de resolución iterativa `getFrequencyFromNote()`, deducirán matemáticamente la frecuencia en Hercios basándose en la distancia interválica en tiempo real.
+1. Abre el archivo `src/main.cpp`.
+2. Localiza el vector global `STYLOPHONE_KEYS` (Línea 20 aprox).
+3. Agrega las notas que desees (respetando la sintaxis `[NOTA][#][OCTAVA]`, ejemplo: `"C6"`).
+4. Recompila con `make` (o `cmake --build .`).
+
+**¿Qué sucederá mágicamente?**
+- `ImGui` iterará automáticamente tu vector. Ajustará el layout de la pantalla, dibujará los botones nuevos y hará salto de línea (wrap) tras el onceavo botón sin romper las matemáticas del diseño.
+- `Sequencer::getFrequencyFromNote()` no tiene diccionarios estáticos limitantes; deduce la altura tonal basándose en las distancias interválicas, así que automáticamente le enviará a `StylophoneSynth` la frecuencia precisa en Hz de tus nuevas notas extremas. 
+
+> ¡El motor no se rompe, el motor se adapta!
