@@ -5,12 +5,18 @@
 #include <functional>
 
 /**
- * @brief Enum con los estados del secuenciador q hice
+ * @brief El Cerebro Rítmico (Sequencer)
+ * 
+ * Este módulo es como nuestro director de orquesta. Se encarga de leer 
+ * todo el texto sucio que el usuario mete en las cajitas (ej. "A4 00 C5"), 
+ * extraer cuáles notas son reales, calcular el "timing" preciso usando los BPM, 
+ * y mandar la señal asíncrona al sintetizador para que las reproduzca.
+ * Además maneja un sistema multipista paralelo como un DAW real!
  */
 enum class SequencerMode {
-    Idle,       ///< ta en pausa
-    Playing,    ///< tocando la cancion sola
-    Recording   ///< escuchando los clicks p q se escriban solitos
+    Idle,      ///< El sistema está en reposo total
+    Playing,   ///< Las pistas están sonando automáticamente
+    Recording  ///< Todo clic en el piano virtual se registrará
 };
 
 /**
@@ -36,8 +42,8 @@ public:
     // Botones de accion
     // =========================================================================
 
-    // Empieza a leer el string y lo toca
-    void play(const std::string& sequenceText);
+    // Empieza a leer los strings y los toca todos a la vez
+    void play(const std::vector<std::string>& sequenceTexts);
     
     // para todo
     void stop();
@@ -48,23 +54,27 @@ public:
     // La funcion mas importante, se llama cada frame en el loop de sdl
     void update(float deltaTime);
     
-    // Mete una nota al texto q llevamos grabado
-    void recordNote(const std::string& noteName);
+    // Mete una nota al texto q llevamos grabado en la pista dada
+    void recordNote(size_t track, const std::string& noteName);
     
     // =========================================================================
     // Para q imgui se hable con esto
     // =========================================================================
 
-    std::string getSequenceText() const;
-    void setSequenceText(const std::string& text);
+    std::string getSequenceText(size_t track) const;
+    void setSequenceText(size_t track, const std::string& text);
+    
+    // Pistas dinámicas
+    void addTrack();
+    size_t getTrackCount() const;
     
     // Punteros a funciones (callbacks) q comunican la logica con el sinte real de audio
-    void setNoteCallbacks(std::function<void(float)> noteOnCb, std::function<void()> noteOffCb);
+    void setNoteCallbacks(std::function<void(int, float)> noteOnCb, std::function<void(int)> noteOffCb);
 
     SequencerMode getMode() const { return m_mode; }
     
-    // La nota q ta sonando ahoritita
-    std::string getCurrentPlayingNote() const { return m_currentPlayingNote; }
+    // La nota q ta sonando ahoritita en una pista
+    std::string getCurrentPlayingNote(size_t track) const;
 
     // =========================================================================
     // Matemáticas feas
@@ -79,18 +89,15 @@ private:
     float m_stepDuration;        // duracion en segundos d cada cuartillo o lo q sea
     float m_timer;               // acumulador d tiempo (deltaTime)
     
-    std::vector<std::string> m_sequence; // el array limpio d notas sin espacios raros
-    int m_currentIndex;          // en dnd vamos en la rola
+    std::vector<std::vector<std::string>> m_sequences; // el array de arrays d notas
+    std::vector<int> m_currentIndexes;                 // en dnd vamos en cada rola
     
-    std::string m_sequenceText;       // lo q metio el usuario crudo
-    std::string m_currentPlayingNote; 
+    std::vector<std::string> m_sequenceTexts;          // lo q metio el usuario
+    std::vector<std::string> m_currentPlayingNotes;    // q suena en cada pista
 
-    std::function<void(float)> m_noteOnCallback; // el on
-    std::function<void()> m_noteOffCallback;     // el off
+    std::function<void(int, float)> m_noteOnCallback;  // el on (track, freq)
+    std::function<void(int)> m_noteOffCallback;        // el off (track)
     
-    // Magia d std::stringstream para limpiar el texto
-    void parseSequenceText(const std::string& text);
-    
-    // Toca la nota en la que vamos
-    void triggerCurrentNote();
+    // Toca la nota en la que vamos para todas las pistas
+    void triggerCurrentNotes();
 };

@@ -28,30 +28,27 @@ Este proyecto se rige por convenciones modernas de programación orientada a obj
 El proyecto se divide en tres piezas clave:
 
 ### 1. Motor de Audio (`StylophoneSynth.h` y `.cpp`)
-Es la fábrica de sonido. Es responsable de calcular, número por número, la onda sonora en tiempo real. No utiliza archivos MP3 ni WAV.
+Es la fábrica de sonido. Es responsable de calcular, número por número, la onda sonora en tiempo real. Ahora cuenta con un **Motor Polifónico Multipista**, capaz de reproducir hasta 16 voces o "pistas" a la vez. No utiliza archivos MP3 ni WAV.
 - **Variables Clave:** 
-  - `m_targetFrequency`: Guarda la nota musical (en unidades de Hercios) que la interfaz gráfica le ordena sonar.
-  - `m_phase` y `m_envelope`: Variables de estado internas utilizadas en trigonometría para saber en qué posición exacta de la onda de sonido estamos y para simular cómo el volumen sube y baja abruptamente al presionar un contacto metálico en el instrumento real.
+  - `struct SynthVoice`: Una estructura compacta que funciona como un "mini-sintetizador" individual. Guarda la frecuencia de una pista (`m_targetFrequency`), su fase y envolvente (volumen).
+  - `std::array<SynthVoice, 16> m_voices`: El arreglo que almacena el estado de las 16 pistas. Permite evitar el uso de alocación de memoria dinámica (como `std::vector` o `new`), lo cual es una regla sagrada para hilos de audio ultra-rápidos.
 - **Métodos Principales:**
   - `processAudio(float* output, int frameCount)`: Es el corazón de todo el aplicativo. Se llama cientos de veces por segundo en segundo plano.
   
-  **¿Cómo se genera exactamente una nota matemática?**
-  Para que escuches un tono (por ejemplo, la nota "La" a 440 Hz), el método `processAudio` debe entregarle a tu tarjeta de sonido una lista de 44,100 números (muestras) cada segundo. Lo hace en estos sencillos pasos:
-  1. **El Avance o Fase (`m_phase`)**: El programa calcula cuánto avanzará la onda en un solo instante dividiendo la frecuencia deseada entre la velocidad de tu audio (44,100).
-  2. **Dibujando la Onda:** Usa ese porcentaje de avance (que va de 0.0 a 1.0) para crear dos formas geométricas puras:
-     - *Onda Cuadrada:* Si el avance es menor a la mitad (0.5), el valor numérico será `1.0`; si es mayor, será `-1.0`. Esto nos da el sonido cuadrado clásico de los videojuegos de 8 bits.
-     - *Onda de Sierra (Sawtooth):* Es una línea diagonal matemática que sube de `-1.0` a `1.0` y se reinicia. Esto le añade un "zumbido" metálico al tono.
-  3. **La Mezcla Final:** Multiplica el 70% del valor de la onda cuadrada más el 30% de la onda de sierra. Este balance fue ajustado manualmente para calcar el sonido real de los circuitos del Stylophone de los años 60.
-  4. **Volumen y Filtrado:** Por último, ese número se multiplica por la variable de volumen `m_envelope` (que sube de golpe o se apaga suavemente dependiendo de si tienes el ratón apretado en una tecla) y luego cruza por la "Ecuación de Filtro Paso Bajo", la cual suaviza los picos de la onda para que el pitido no te perfore los tímpanos.
+  **¿Cómo se mezcla el sonido en un Multipista?**
+  Para que escuches múltiples tonos a la vez, el método `processAudio` utiliza un "Mezclador por Software" (Soft Mixer) en estos sencillos pasos:
+  1. **Oscilación de Pistas:** El programa itera sobre el vector de las 16 voces, calculando de forma independiente el avance (`phase`) y la forma de onda (70% cuadrada y 30% sierra) para cada una de ellas, aplicando sus propios filtros y volúmenes.
+  2. **Sumatoria Master:** Las ondas procesadas de cada pista se suman aritméticamente a una variable central llamada `mixedSample`.
+  3. **Limitador de Picos (Soft Clipping):** Si sumáramos 10 sonidos muy fuertes, la señal superaría el límite digital de `1.0` y `-1.0`, provocando un ruido horrible conocido como "clipping" o saturación digital. Para evitarlo de manera profesional, pasamos el resultado final por una función trigonométrica `std::tanh(mixedSample)`. La tangente hiperbólica comprime de manera natural y suave los picos extremos del audio, manteniendo un volumen equilibrado sin importar cuántas notas estén sonando.
 
 ### 2. Motor de Secuenciación (`Sequencer.h` y `.cpp`)
-Es el encargado de leer texto, entenderlo y automatizar la música en base al tiempo.
+Es el encargado de leer múltiples textos, entenderlos y automatizar la música en base al tiempo.
 - **Variables Clave:**
-  - `std::vector<std::string> m_sequence`: Un arreglo dinámico que funciona como memoria a corto plazo. Guarda cada nota por separado y en orden.
-  - `m_timer` y `m_stepDuration`: Acumuladores de tiempo. Leen los "BPM" (Beats/Golpes por minuto) definidos por el usuario en el control deslizante y calculan matemáticamente cuántos milisegundos de espera deben transcurrir entre una nota y otra.
+  - `std::vector<std::vector<std::string>> m_sequences`: Un vector dinámico "bidimensional" (lista de listas). Cada lista representa una pista (TRK 1, TRK 2, etc.), y almacena el orden de sus notas a corto plazo.
+  - `m_timer` y `m_stepDuration`: Acumuladores de tiempo. Leen los "BPM" (Beats/Golpes por minuto) definidos por el usuario en el control deslizante y calculan matemáticamente cuántos milisegundos de espera deben transcurrir entre un compás y el siguiente.
 - **Métodos Principales:**
-  - `parseSequenceText(const std::string& text)`: Utiliza `std::istringstream` (un flujo o túnel de lectura de texto nativo de C++). Su trabajo es tragar un bloque de texto sucio escrito por el usuario (por ejemplo: "A4     C5\n\n E4"), ignorar todos los espacios o dobles saltos de línea inútiles, y guardar nota por nota en la memoria en una fracción de milisegundo.
-  - `getFrequencyFromNote()`: Es un traductor matemático. Convierte una cadena de texto (como "A4") a su frecuencia sonora pura (440.0f) iterando sobre un catálogo base y aplicando la fórmula de potencias de la escala musical occidental.
+  - `play(const std::vector<std::string>& sequenceTexts)`: Utiliza `std::istringstream` (un flujo o túnel de lectura de texto nativo de C++). Su trabajo es tragar el arreglo de los textos sucios escritos por el usuario (por ejemplo: "A4     C5\n\n 00"), ignorar todos los espacios, y guardarlos de forma limpia y paralela en cada uno de los vectores internos.
+  - `getFrequencyFromNote()`: Es un traductor matemático. Convierte una cadena de texto (como "A4") a su frecuencia sonora pura (440.0f) iterando sobre un catálogo base y aplicando la fórmula de potencias de la escala musical occidental. Esta función también reconoce el token mágico `"00"`, retornando un perfecto `0.0f` que los otros métodos interpretan y ejecutan como un **Silencio** (Rest) musical.
 
 ### 3. Capa de Presentación (`main.cpp`)
 El archivo de control central que coordina el dibujo de los gráficos y une la interfaz con la lógica de los motores de audio y secuencias.
@@ -62,9 +59,13 @@ El archivo de control central que coordina el dibujo de los gráficos y une la i
 
 ## Explicación Funcional de la Interfaz Interactiva
 
-- **Botón [>] PLAY:** Invoca a `sequencer.play()`. Analiza el texto disponible en la pantalla gigante de texto, vacía cualquier memoria de secuencias anterior, la reemplaza por la nueva e inicia el reloj interno que comenzará a mandar señales de `noteOn` a nuestro sintetizador asíncrono en segundo plano.
-- **Botón [O] GRABAR:** Modifica el estado o "Modo" del secuenciador a modo `Recording`. Mientras este estado permanezca activo, cualquier clic que el ratón efectúe sobre una tecla metálica ejecutará en cadena la función `sequencer.recordNote()`. Esta función imprime de vuelta hacia la pantalla (añadiendo el respectivo espacio) la nota oprimida por el usuario.
-- **Botón [-] BORRAR MEMORIA:** Ejecuta el bloque físico de reinicio compuesto por `sequenceBuffer[0] = '\0';` y `sequencer.setSequenceText("");`. En lenguaje C y C++, la variable `sequenceBuffer` funge como el arreglo de caracteres (char array) primitivo que guarda lo que el usuario ve en la caja de texto. Al introducir como primer carácter al símbolo `'\0'` (conocido como Carácter Nulo de terminación), el sistema operativo entiende inmediatamente que esa cadena de texto ha finalizado, truncándola. Es la manera más rústica, eficaz y de menor consumo de CPU para "vaciar" o purgar la entrada y la memoria de secuencias de un plumazo.
+- **Selector de Temas**: Incorporamos un menú desplegable (`ImGui::Combo`) en la esquina superior derecha del encabezado (junto al nuevo título `Proyecto Proga StyloSimple V1.3`). Este incluye esquemas de colores retro programados con paletas `ImVec4`, permitiéndote cambiar al instante entre: *Ámbar Retro (Fer)*, *Matrix Verde (enora)*, *Blanco y Negro (enora)*, y *Monokai Hacker (Fer)*.
+- **Botón `[+] AÑADIR PISTA`**: Escala la lógica del secuenciador creando en tiempo real nuevas cajas de texto (`InputTextMultiline`) auto-ajustables en un contenedor provisto de barras de desplazamiento vertical (Scrollbar) para no romper el aspecto de la ventana principal.
+- **Botón [>] PLAY:** Invoca a `sequencer.play()`. Analiza todos los textos de pistas disponibles en pantalla, vacía la memoria anterior y arranca el reloj interno global.
+- **Grabación Dirigida (Radio Buttons):** Añadimos pequeños selectores (círculos) junto a cada caja de texto. Si seleccionas la Pista 2 y presionas grabar, todo lo que toques en el teclado virtual se registrará directa y exclusivamente en esa pista. ¡Súper útil para hacer armonías complejas sin borrar tu melodía principal!
+- **Feedback Visual Dinámico:** Al reproducir la música, los títulos de las pistas cambian en tiempo real (ej. pasando de `TRK 1>` a `TRK 1 [C#5]>`) y brillan usando el color de acento principal. Esto te permite "ver" la música y saber exactamente qué nota está escupiendo cada pista en cada milisegundo.
+- **Botón [O] GRABAR:** Modifica el estado del secuenciador a modo `Recording`. Mientras este estado permanezca activo, cualquier clic que el ratón efectúe sobre las teclas metálicas de la pantalla ejecutará en cadena la función `sequencer.recordNote(track_activo)`.
+- **Botón [-] BORRAR MEMORIA:** Itera a través del `std::vector` de las cajas de texto y ejecuta un borrado físico veloz escribiendo `sequenceBuffers[i][0] = '\0'`. Al introducir este Carácter Nulo de terminación en C++, el sistema trunca la cadena instantáneamente. Es la manera más rústica, eficaz y limpia de vaciar la memoria.
 
 ---
 
@@ -107,8 +108,10 @@ La arquitectura del programa fue construida bajo un paradigma de diseño por ada
 2. Localiza la constante vectorial global `STYLOPHONE_KEYS` posicionada en la zona superior (Línea 15 aprox):
 ```cpp
 const std::vector<std::string> STYLOPHONE_KEYS = {
-    "A3", "A#3", "B3", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", 
-    "A4", "A#4", "B4", "C5" 
+    "C2", "C#2", "D2", "D#2", "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2",
+    "C3", "C#3", "D3", "D#3", "E3", "F3", "F#3", "G3", "G#3", "A3", "A#3", "B3",
+    "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4",
+    "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5", "G5"
 };
 ```
 3. Incorpora tus nuevas notas musicales encuadrándolas entre comillas y separándolas por comas. (Asegúrate de escribirlas en formato estándar: Nombre + [Sostenido opcional] + Número de Octava).

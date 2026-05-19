@@ -4,12 +4,12 @@
 #include <cmath>
 #include <iostream>
 
-// la pi de toda la vida pero en C++20 p/ verte farol
+// La constante Pi de toda la vida, pero extraída nativamente desde C++20. ¡Estilo moderno y preciso!
 #include <numbers>
 constexpr float PI = std::numbers::pi_v<float>;
 
-// Esta funcion me saco canas. Es el callback en puro C q ocupa la libreria.
-// Nomas sirve pa castear la clase y mandar llamar nuestro processAudio
+// Este es el puente entre el mundo primitivo de C (miniaudio) y nuestra clase orientada a objetos en C++.
+// Su única chamba es castear el puntero (userData) de vuelta a nuestra clase y llamar a `processAudio`.
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
     StylophoneSynth* synth = static_cast<StylophoneSynth*>(pDevice->pUserData);
     if (synth) {
@@ -19,13 +19,7 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
 
 StylophoneSynth::StylophoneSynth() 
     : m_device(nullptr),
-      m_targetFrequency(440.0f), // empezamos en A4 porsiacaso
-      m_gate(false),             
-      m_phase(0.0f),
-      m_currentFrequency(440.0f),
-      m_envelope(0.0f),
-      m_sampleRate(DEFAULT_SAMPLE_RATE),
-      m_filterState(0.0f)
+      m_sampleRate(DEFAULT_SAMPLE_RATE)
 {
 }
 
@@ -36,16 +30,16 @@ StylophoneSynth::~StylophoneSynth() {
 bool StylophoneSynth::init() {
     m_device = new ma_device; 
     
-    // configuracion basica pal miniaudio
+    // Configuración básica para miniaudio (la librería que nos salva la vida).
     ma_device_config config = ma_device_config_init(ma_device_type_playback);
-    config.playback.format   = ma_format_f32;       // float 32 suena mas limpio
-    config.playback.channels = 1;                   // mono como el aparato original
-    config.sampleRate        = static_cast<ma_uint32>(DEFAULT_SAMPLE_RATE);
-    config.dataCallback      = data_callback;       // conectamos la func de arriba
-    config.pUserData         = this;                // pasamos nuestra clase (el this pointer we)
+    config.playback.format   = ma_format_f32;       // Usamos Float 32 bits porque suena súper nítido y evita recortes raros.
+    config.playback.channels = 1;                   // Mono (1 canal), tal como el aparato original de los 60s.
+    config.sampleRate        = static_cast<ma_uint32>(DEFAULT_SAMPLE_RATE); // 44.1kHz estándar.
+    config.dataCallback      = data_callback;       // Conectamos nuestra función puente de arriba.
+    config.pUserData         = this;                // Pasamos nuestra propia clase para poder acceder a ella desde el hilo de audio.
 
     if (ma_device_init(NULL, &config, m_device) != MA_SUCCESS) {
-        std::cerr << "ya valio, no pudo arrancar miniaudio." << std::endl;
+        std::cerr << "Fallo crítico: No se pudo arrancar la tarjeta de sonido a través de miniaudio." << std::endl;
         delete m_device;
         m_device = nullptr;
         return false;
@@ -72,73 +66,83 @@ void StylophoneSynth::close() {
     }
 }
 
-void StylophoneSynth::noteOn(float frequency) {
-    // con relaxed basta, no ocupamos sincronizacion tan loca aca
-    m_targetFrequency.store(frequency, std::memory_order_relaxed);
-    m_gate.store(true, std::memory_order_relaxed);
+void StylophoneSynth::noteOn(int track, float frequency) {
+    if (track >= 0 && track < MAX_TRACKS) {
+        // con relaxed basta, no ocupamos sincronizacion tan loca aca
+        m_voices[track].targetFrequency.store(frequency, std::memory_order_relaxed);
+        m_voices[track].gate.store(true, std::memory_order_relaxed);
+    }
 }
 
-void StylophoneSynth::noteOff() {
-    m_gate.store(false, std::memory_order_relaxed);
+void StylophoneSynth::noteOff(int track) {
+    if (track >= 0 && track < MAX_TRACKS) {
+        m_voices[track].gate.store(false, std::memory_order_relaxed);
+    }
 }
 
 void StylophoneSynth::processAudio(float* output, int frameCount) {
-    // leer las variables nomas una vez al inicio del bloqe d audio pa no matar la cpu
-    bool gate = m_gate.load(std::memory_order_relaxed);
-    float targetFreq = m_targetFrequency.load(std::memory_order_relaxed);
-    
-    // tiempos super rapidos d ataque y release pa emular el stylus d metal pegando
+    // Tiempos súper rápidos de Attack (ataque) y Release (relajación).
+    // Esto simula el golpe físico metálico del stylus contra la pista del teclado real.
     constexpr float ATTACK_MS = 10.0f;
     constexpr float RELEASE_MS = 50.0f;
     
     const float attackRate = 1.0f / ((ATTACK_MS / 1000.0f) * m_sampleRate);
     const float releaseRate = 1.0f / ((RELEASE_MS / 1000.0f) * m_sampleRate);
 
-    // Filtro de paso bajo d un polo (me costo enteder esto en la clase d seales)
-    // Corta agudos chiyones q lastiman el oido
+    // Filtro paso bajo de un polo (súper clásico en Procesamiento de Señales Digitales o DSP).
+    // Nos ayuda a cortar esos agudos súper chillones y robóticos que lastiman el oído.
     constexpr float FILTER_CUTOFF_HZ = 2500.0f; 
     const float rc = 1.0f / (2.0f * PI * FILTER_CUTOFF_HZ);
     const float dt = 1.0f / m_sampleRate;
     const float alpha = dt / (rc + dt); 
 
     for (int i = 0; i < frameCount; ++i) {
-        
-        // Glide suave entre notas (portamento se llama creo)
-        m_currentFrequency += (targetFreq - m_currentFrequency) * 0.005f;
-        
-        if (gate) {
-            m_envelope += attackRate;
-            if (m_envelope > 1.0f) m_envelope = 1.0f; 
-        } else {
-            m_envelope -= releaseRate;
-            if (m_envelope < 0.0f) m_envelope = 0.0f; 
+        float mixedSample = 0.0f;
+
+        // Loop por todas las pistas (Mezclador / Mixer)
+        for (int v = 0; v < MAX_TRACKS; ++v) {
+            auto& voice = m_voices[v];
+            
+            bool gate = voice.gate.load(std::memory_order_relaxed);
+            float targetFreq = voice.targetFrequency.load(std::memory_order_relaxed);
+            
+            // Glide suave entre notas (portamento se llama creo)
+            voice.currentFrequency += (targetFreq - voice.currentFrequency) * 0.005f;
+            
+            if (gate) {
+                voice.envelope += attackRate;
+                if (voice.envelope > 1.0f) voice.envelope = 1.0f; 
+            } else {
+                voice.envelope -= releaseRate;
+                if (voice.envelope < 0.0f) voice.envelope = 0.0f; 
+            }
+
+            // Si el volumen bajó a casi cero, apagamos la onda matemática para no consumir procesador en vano (optimización bestial).
+            if (voice.envelope > 0.0001f) {
+                float phaseIncrement = voice.currentFrequency / m_sampleRate;
+                voice.phase += phaseIncrement;
+                if (voice.phase >= 1.0f) voice.phase -= 1.0f; 
+                
+                // Generamos nuestras dos formas de onda puras: Cuadrada y Diente de Sierra (Sawtooth).
+                float square = (voice.phase < 0.5f) ? 1.0f : -1.0f;
+                float saw = (voice.phase * 2.0f) - 1.0f;
+                
+                // La receta secreta: 70% cuadrada + 30% sierra. Esto le da ese tono zumbante inconfundible.
+                float rawWave = (square * 0.7f) + (saw * 0.3f);
+                
+                // Aplicamos la fórmula mágica del filtro suavizador.
+                voice.filterState = voice.filterState + alpha * (rawWave - voice.filterState);
+                
+                // Multiplicamos por la envolvente de volumen y lo sumamos a la pista maestra.
+                mixedSample += voice.filterState * voice.envelope; 
+            } else {
+                // Reiniciar la fase (el punto de partida de la onda) para que no haya ruidos pop ("clicks") en la siguiente nota.
+                voice.phase = 0.0f;
+            }
         }
 
-        float sample = 0.0f;
-
-        // si no hay volumen ni calculamos la onda (optimizacion brutal)
-        if (m_envelope > 0.0001f) {
-            float phaseIncrement = m_currentFrequency / m_sampleRate;
-            m_phase += phaseIncrement;
-            if (m_phase >= 1.0f) m_phase -= 1.0f; 
-            
-            // Cuadrada y sierra mezcladas pa dar el tono zumbante
-            float square = (m_phase < 0.5f) ? 1.0f : -1.0f;
-            float saw = (m_phase * 2.0f) - 1.0f;
-            
-            // 70 cuad, 30 sierra. experimente un chingo pa encontrar este balance xd
-            float rawWave = (square * 0.7f) + (saw * 0.3f);
-            
-            // Formula del filtro q robe del libro de dsp
-            m_filterState = m_filterState + alpha * (rawWave - m_filterState);
-            
-            // aplicamos el dca al final
-            sample = m_filterState * m_envelope * MASTER_VOLUME; 
-        } else {
-            // resetear fase pa q no haya pops cuando empiece de nuevo la nota
-            m_phase = 0.0f;
-        }
-
-        output[i] = sample;
+        // Soft Clipping (Tangente Hiperbólica): Es un truco de audio profesional.
+        // Evita el clipeo digital (saturación fea) si tocamos muchas pistas a la vez comprimiendo los picos suavemente de forma analógica.
+        output[i] = std::tanh(mixedSample) * MASTER_VOLUME;
     }
 }
